@@ -103,7 +103,7 @@ public class EmployeeService {
                 .map(EmployeeMapper::toDto)
                 .toList();
     }
-
+//   ..
     public EmployeeResponse getEmployeeById(Long id) {
         Employee emp = employeeRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("❌ Employee not found with ID: " + id));
