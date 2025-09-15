@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+
+security:
+  jwt:
+    # Use strong 256-bit secrets (>=32 chars). Do NOT commit real secrets.
+    access-secret: "change-this-access-secret-at-least-32-chars-long-123456"
+    refresh-secret: "change-this-refresh-secret-at-least-32-chars-long-abcdef"
+    access-ttl-ms: 3600000       # 1 hour
+    refresh-ttl-ms: 604800000    # 7 days
