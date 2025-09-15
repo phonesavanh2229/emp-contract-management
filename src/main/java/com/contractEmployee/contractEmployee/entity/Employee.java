@@ -16,13 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "employee")
-@ToString(exclude = {"contracts", "educations", "identityCard"})
-@EqualsAndHashCode(exclude = {"contracts", "educations", "identityCard"})
+//@ToString(exclude = {"contracts", "educations", "identityCard"})
+//@EqualsAndHashCode(exclude = {"contracts", "educations", "identityCard"})
 public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "employee_id")
+    private Integer id;
 
     @Column(nullable = false, unique = true)
     private String staffCode;
@@ -58,15 +59,15 @@ public class Employee {
     // Relationships
     // ==========================
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Contract> contracts;
-
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Education> educations;
-
-    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private IdentityCard identityCard;
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<Contract> contracts;
+//
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    private List<Education> educations;
+//
+//    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private IdentityCard identityCard;
 
 }

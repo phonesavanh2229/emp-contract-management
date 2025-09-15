@@ -1,4 +1,4 @@
-package com.contractEmployee.contractEmployee.security;
+package com.contractEmployee.contractEmployee.exception;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,9 +1,9 @@
 package com.contractEmployee.contractEmployee.dto;
 
-import com.contractEmployee.contractEmployee.entity.Education;
+//import com.contractEmployee.contractEmployee.entity.Education;
 import com.contractEmployee.contractEmployee.entity.Employee;
 import com.contractEmployee.contractEmployee.entity.*;
-import com.contractEmployee.contractEmployee.entity.IdentityCard;
+//import com.contractEmployee.contractEmployee.entity.IdentityCard;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -27,10 +27,10 @@ public class EmployeeResponse {
     private String province;
     private String district;
     private String village;
-    private List<ContractDto> contracts;
-    private List<EducationDTO> educations;
-
-    private IdentityCardDto identityCard;
+//    private List<ContractDto> contracts;
+//    private List<EducationDTO> educations;
+//
+//    private IdentityCardDto identityCard;
 
 
 }

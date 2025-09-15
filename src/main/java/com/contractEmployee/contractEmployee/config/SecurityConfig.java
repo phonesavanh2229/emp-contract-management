@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/emp","/api/auth/users","/api/auth/login").permitAll()
+                        .requestMatchers("/api/immigration/**","/api/emp","/api/auth/users","/api/auth/login").permitAll()
                         // ADMIN only
                         .requestMatchers("/api/contracts/renew").hasRole("ADMIN")
 //                        .requestMatchers("/api/auth/users").hasRole("ADMIN")

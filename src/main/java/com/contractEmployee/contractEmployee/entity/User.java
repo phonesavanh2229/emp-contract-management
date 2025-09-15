@@ -14,7 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable=false, length=50)
     private String username;

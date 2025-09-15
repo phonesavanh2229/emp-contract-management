@@ -3,6 +3,27 @@ spring:
     active: dev
   jackson:
     default-property-inclusion: non_null
+  datasource:
+    url: jdbc:mariadb://localhost:3307/contract_db
+    username: root
+    password: root
+    driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      pool-name: ContractHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        temp.use_jdbc_metadata_defaults: false
+        jdbc.lob.non_contextual_creation: true
 
 security:
   jwt:
@@ -11,3 +32,7 @@ security:
     refresh-secret: "change-this-refresh-secret-at-least-32-chars-long-abcdef"
     access-ttl-ms: 3600000       # 1 hour
     refresh-ttl-ms: 604800000    # 7 days
+
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG
