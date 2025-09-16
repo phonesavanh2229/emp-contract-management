@@ -1,4 +1,4 @@
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.request;
 
 import com.contractEmployee.contractEmployee.entity.Role;
 import jakarta.validation.constraints.NotBlank;

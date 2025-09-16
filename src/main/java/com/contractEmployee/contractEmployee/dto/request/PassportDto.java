@@ -1,12 +1,11 @@
 // PassportDto.java
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -22,6 +21,6 @@ public class PassportDto {
     private LocalDate expiryDate;
     private String status;
 
-    private List<RentalCertificateDto> rentalCertificates;
+    private List<VisaDto> visas;
 
 }

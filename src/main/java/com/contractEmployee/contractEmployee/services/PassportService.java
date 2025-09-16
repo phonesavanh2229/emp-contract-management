@@ -1,7 +1,7 @@
 package com.contractEmployee.contractEmployee.services;
 
-import com.contractEmployee.contractEmployee.dto.CreateFullPassportRequest;
-import com.contractEmployee.contractEmployee.dto.PassportDto;
+import com.contractEmployee.contractEmployee.dto.request.CreateFullPassportRequest;
+import com.contractEmployee.contractEmployee.dto.request.PassportDto;
 
 import java.util.List;
 

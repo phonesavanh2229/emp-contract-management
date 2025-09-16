@@ -1,5 +1,5 @@
 // CreateFullPassportRequest.java
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.request;
 
 import lombok.Data;
 import java.time.LocalDate;

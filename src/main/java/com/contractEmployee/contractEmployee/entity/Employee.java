@@ -1,10 +1,12 @@
 package com.contractEmployee.contractEmployee.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,8 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "employee")
-//@ToString(exclude = {"contracts", "educations", "identityCard"})
-//@EqualsAndHashCode(exclude = {"contracts", "educations", "identityCard"})
+
 public class Employee {
 
     @Id
@@ -46,8 +47,19 @@ public class Employee {
     private EmployeeStatus status;
 
     private String province;
-    private String district;
     private String village;
+
+    @ManyToOne
+    @JoinColumn(name = "district_id")
+    private District district;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
+
+    @ManyToOne
+    @JoinColumn(name = "department_branch_id")   // FK column in employee table
+    private DepartmentBranch departmentBranch;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -55,19 +67,20 @@ public class Employee {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    // ==========================
-    // Relationships
-    // ==========================
-
-//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // --- Relationships ---
 //    @JsonIgnore
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Contract> contracts;
-//
-//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    private List<Education> educations;
-//
-//    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    @JsonIgnore
-//    private IdentityCard identityCard;
 
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Education> educations;
+
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<IdentityCard> identityCards;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Passport> passports;
 }

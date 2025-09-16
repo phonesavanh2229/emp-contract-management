@@ -1,4 +1,4 @@
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.request;
 
 import com.contractEmployee.contractEmployee.entity.*;
 import lombok.Data;
@@ -17,6 +17,7 @@ public class EmployeeRequest {
     private LocalDate startWorking;
     private String status;
     private String province;
-    private String district;
+
     private String village;
+    private DistrictDto district;
 }

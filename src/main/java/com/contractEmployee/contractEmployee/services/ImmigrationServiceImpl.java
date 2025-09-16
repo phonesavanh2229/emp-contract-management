@@ -1,17 +1,27 @@
 package com.contractEmployee.contractEmployee.services;
 
-import com.contractEmployee.contractEmployee.dto.*;
-import com.contractEmployee.contractEmployee.entity.*;
-import com.contractEmployee.contractEmployee.rep.*;
+import com.contractEmployee.contractEmployee.dto.request.*;
+import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
+import com.contractEmployee.contractEmployee.dto.response.ImmigrationResponse;
+import com.contractEmployee.contractEmployee.entity.Employee;
+import com.contractEmployee.contractEmployee.entity.Passport;
+import com.contractEmployee.contractEmployee.entity.RentalCertificate;
+import com.contractEmployee.contractEmployee.entity.Visa;
+import com.contractEmployee.contractEmployee.mapper.PassportMapper;
+import com.contractEmployee.contractEmployee.mapper.RentalCertificateMapper;
+import com.contractEmployee.contractEmployee.mapper.VisaMapper;
+import com.contractEmployee.contractEmployee.rep.EmployeeRepository;
+import com.contractEmployee.contractEmployee.rep.PassportRepository;
+import com.contractEmployee.contractEmployee.rep.RentalCertificateRepository;
+import com.contractEmployee.contractEmployee.rep.VisaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class ImmigrationServiceImpl implements ImmigrationService {
@@ -22,41 +32,60 @@ public class ImmigrationServiceImpl implements ImmigrationService {
     private final RentalCertificateRepository rentalRepository;
 
     @Override
-    @Transactional
-    public ImmigrationResponse saveImmigration(Integer employeeId, ImmigrationRequest request) {
+    @Transactional(readOnly = true)
+    public ApiResponse getImmigrationAll() {
+        List<EmployeeDto> employeeDtos = employeeRepository.findAll()
+                .stream()
+                .map(this::mapEmployeeWithImmigration)
+                .collect(Collectors.toList());
+
+        return  ApiResponse.success("get Data successfully",employeeDtos); // ✅ wrap
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<List<EmployeeDto>> getImmigrationByEmployeeId(Integer employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
 
-        ImmigrationResponse response = new ImmigrationResponse();
+        EmployeeDto dto = mapEmployeeWithImmigration(employee);
+        return ApiResponse.success("get Data successfully", List.of(dto)); // ✅ wrap เป็น List
+    }
 
-        // 1) Save Passport
-        Passport passport = null;
-        if (request.getPassport() != null) {
-            PassportDto p = request.getPassport();
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<VisaSummaryDto> getVisaSummary() {
+        LocalDate today = LocalDate.now();
+        LocalDate next30Days = today.plusDays(30);
 
-            passport = passportRepository.findByEmployeeId(employeeId).orElse(new Passport());
-            passport.setEmployee(employee);
-            passport.setPassportNo(p.getPassportNumber());
-            passport.setPassportType(p.getPassportType());
-            passport.setCountryCode(p.getCountry());
-            passport.setIssuePlace(p.getIssuePlace());
-            passport.setIssueDate(p.getIssueDate());
-            passport.setExpiryDate(p.getExpiryDate());
-            passport.setStatus(p.getStatus());
+        long active = visaRepository.countByVisaStatus("ACTIVE");
+        long expired = visaRepository.countByVisaStatus("EXPIRED");
+        long expiring = visaRepository.countByExpiryDateBetween(today, next30Days);
+        VisaSummaryDto dto = new VisaSummaryDto(active, expired, expiring);
+        return ApiResponse.success("Visa summary fetched successfully", dto);
+    }
 
-            passport = passportRepository.save(passport);
+    @Override
+    @Transactional
+    public ApiResponse<EmployeeDto> saveImmigration(Integer employeeId, ImmigrationRequest request) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
 
-            response.setPassport(toPassportDto(passport));
-        } else {
-            passport = passportRepository.findByEmployeeId(employeeId).orElse(null);
-        }
+        // ✅ Save Passport
+        PassportDto passportDto = request.getPassport();
+        Passport passport = new Passport();
+        passport.setEmployee(employee);
+        passport.setPassportNo(passportDto.getPassportNumber());
+        passport.setPassportType(passportDto.getPassportType());
+        passport.setCountryCode(passportDto.getCountry());
+        passport.setIssuePlace(passportDto.getIssuePlace());
+        passport.setStatus(passportDto.getStatus());
+        passport.setIssueDate(passportDto.getIssueDate());
+        passport.setExpiryDate(passportDto.getExpiryDate());
+        passport = passportRepository.save(passport);
 
-        // 2) Save Visas
-        if (request.getVisas() != null && !request.getVisas().isEmpty()) {
-            if (passport == null) {
-                throw new IllegalStateException("Create passport before adding visas.");
-            }
-            var savedVisaDtos = new ArrayList<VisaDto>();
+        // ✅ Save Visas
+        if (request.getVisas() != null) {
             for (VisaDto v : request.getVisas()) {
                 Visa visa = new Visa();
                 visa.setPassport(passport);
@@ -65,132 +94,135 @@ public class ImmigrationServiceImpl implements ImmigrationService {
                 visa.setVisaPurpose(v.getVisaPurpose());
                 visa.setCountryCode(v.getCountry());
                 visa.setIssuePlace(v.getIssuePlace());
-                visa.setIssueDate(v.getIssueDate());
-                visa.setExpiryDate(v.getExpiryDate());
                 visa.setEntries(v.getEntries());
                 visa.setVisaStatus(v.getStatus());
-
+                visa.setIssueDate(v.getIssueDate());
+                visa.setExpiryDate(v.getExpiryDate());
                 Visa savedVisa = visaRepository.save(visa);
-                savedVisaDtos.add(toVisaDto(savedVisa));
+
+                // ✅ Save Rentals for each Visa
+                if (request.getRentalCertificates() != null) {
+                    for (RentalCertificateDto r : request.getRentalCertificates()) {
+                        RentalCertificate rc = new RentalCertificate();
+                        rc.setVisa(savedVisa);
+                        rc.setCertificateNumber(r.getCertificateNumber());
+                        rc.setRentalType(r.getRentalType());
+                        rc.setAddress(r.getAddress());
+                        rc.setLandlordName(r.getLandlordName());
+                        rc.setLandlordContact(r.getLandlordContact());
+                        rc.setStartDate(r.getStartDate());
+                        rc.setEndDate(r.getEndDate());
+                        rc.setStatus(r.getStatus());
+                        rentalRepository.save(rc);
+                    }
+                }
             }
-            response.setVisas(savedVisaDtos);
         }
 
-        // 3) Save Rental Certificates
-        if (request.getRentalCertificates() != null && !request.getRentalCertificates().isEmpty()) {
-            if (passport == null) {
-                throw new IllegalStateException("Create passport/visa before adding rental certificates.");
-            }
-            Visa latestVisa = visaRepository.findTopByPassportIdOrderByCreatedAtDesc(passport.getId())
-                    .orElseThrow(() -> new IllegalStateException("No visa found for this passport."));
-
-            var savedRentalDtos = new ArrayList<RentalCertificateDto>();
-            for (RentalCertificateDto r : request.getRentalCertificates()) {
-                RentalCertificate rc = new RentalCertificate();
-                rc.setVisa(latestVisa); // ✅ only visa, no passport
-                rc.setCertificateNumber(r.getCertificateNumber());
-                rc.setRentalType(r.getRentalType());
-                rc.setAddress(r.getAddress());
-                rc.setLandlordName(r.getLandlordName());
-                rc.setLandlordContact(r.getLandlordContact());
-                rc.setStartDate(r.getStartDate());
-                rc.setEndDate(r.getEndDate());
-                rc.setStatus(r.getStatus());
-
-                RentalCertificate savedRc = rentalRepository.save(rc);
-                savedRentalDtos.add(toRentalDto(savedRc));
-            }
-            response.setRentalCertificates(savedRentalDtos);
-        }
-
-        return response;
+        // ✅ Return mapped EmployeeDto with immigration
+        EmployeeDto dto = mapEmployeeWithImmigration(employee);
+        return ApiResponse.success("Immigration data saved successfully", dto);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public ImmigrationResponse getImmigration(Integer employeeId) {
-        ImmigrationResponse resp = new ImmigrationResponse();
+    // ------------------ Mapper ------------------
+    private EmployeeDto mapEmployeeWithImmigration(Employee e) {
+        EmployeeDto dto = new EmployeeDto();
+        dto.setId(e.getId());
+        dto.setStaffCode(e.getStaffCode());
+        dto.setFirstName(e.getFirstName());
+        dto.setLastName(e.getLastName());
+        dto.setPhone(e.getPhone());
+        dto.setEmail(e.getEmail());
+        dto.setProvince(e.getProvince());
+        dto.setVillage(e.getVillage());
 
-        var passportOpt = passportRepository.findByEmployeeId(employeeId);
-        if (passportOpt.isEmpty()) return resp;
+        passportRepository.findByEmployeeId(e.getId()).ifPresent(passport -> {
+            PassportDto passportDto = new PassportDto();
+            passportDto.setId(passport.getId());
+            passportDto.setPassportNumber(passport.getPassportNo());
+            passportDto.setPassportType(passport.getPassportType());
+            passportDto.setCountry(passport.getCountryCode());
+            passportDto.setIssuePlace(passport.getIssuePlace());
+            passportDto.setStatus(passport.getStatus());
+            passportDto.setIssueDate(passport.getIssueDate());
+            passportDto.setExpiryDate(passport.getExpiryDate());
 
-        var passport = passportOpt.get();
-        resp.setPassport(toPassportDto(passport));
+            List<VisaDto> visaDtos = visaRepository.findByPassportId(passport.getId())
+                    .stream()
+                    .map(visa -> {
+                        VisaDto visaDto = new VisaDto();
+                        visaDto.setId(visa.getId());
+                        visaDto.setVisaNumber(visa.getVisaNumber());
+                        visaDto.setVisaType(visa.getVisaType());
+                        visaDto.setVisaPurpose(visa.getVisaPurpose());
+                        visaDto.setCountry(visa.getCountryCode());
+                        visaDto.setIssuePlace(visa.getIssuePlace());
+                        visaDto.setEntries(visa.getEntries());
+                        visaDto.setStatus(visa.getVisaStatus());
+                        visaDto.setIssueDate(visa.getIssueDate());
+                        visaDto.setExpiryDate(visa.getExpiryDate());
 
-        resp.setVisas(
-                visaRepository.findByPassportId(passport.getId())
-                        .stream().map(this::toVisaDto)
-                        .collect(Collectors.toList())
-        );
+                        List<RentalCertificateDto> rentals = rentalRepository.findByVisaId(visa.getId())
+                                .stream()
+                                .map(r -> {
+                                    RentalCertificateDto rd = new RentalCertificateDto();
+                                    rd.setId(r.getId());
+                                    rd.setCertificateNumber(r.getCertificateNumber());
+                                    rd.setRentalType(r.getRentalType());
+                                    rd.setAddress(r.getAddress());
+                                    rd.setLandlordName(r.getLandlordName());
+                                    rd.setLandlordContact(r.getLandlordContact());
+                                    rd.setStartDate(r.getStartDate());
+                                    rd.setEndDate(r.getEndDate());
+                                    rd.setStatus(r.getStatus());
+                                    return rd;
+                                }).collect(Collectors.toList());
 
-        resp.setRentalCertificates(
-                rentalRepository.findByVisa_Passport_Id(passport.getId())
-                        .stream().map(this::toRentalDto)
-                        .collect(Collectors.toList())
-        );
+                        visaDto.setRentalCertificates(rentals);
+                        return visaDto;
+                    }).collect(Collectors.toList());
 
-        return resp;
-    }
-    @Override
-    @Transactional(readOnly = true)
-    public VisaSummaryDto getVisaSummary() {
-        LocalDate today = LocalDate.now();
-        LocalDate next30Days = today.plusDays(30);
+            passportDto.setVisas(visaDtos);
+            dto.setPassport(passportDto);
+        });
 
-        long active = visaRepository.countByVisaStatus("ACTIVE");
-        long expired = visaRepository.countByVisaStatus("EXPIRED");
-        long expiring = visaRepository.countByExpiryDateBetween(today, next30Days);
-
-        VisaSummaryDto dto = new VisaSummaryDto();
-        dto.setTotalActive(active);
-        dto.setTotalExpired(expired);
-        dto.setTotalExpiring(expiring);
-        return dto;
-    }
-
-
-
-
-    // ✅ Mapping Helpers
-    private PassportDto toPassportDto(Passport p) {
-        PassportDto dto = new PassportDto();
-        dto.setId(p.getId());
-        dto.setPassportNumber(p.getPassportNo());
-        dto.setPassportType(p.getPassportType());
-        dto.setCountry(p.getCountryCode());
-        dto.setIssuePlace(p.getIssuePlace());
-        dto.setIssueDate(p.getIssueDate());
-        dto.setExpiryDate(p.getExpiryDate());
-        dto.setStatus(p.getStatus());
-        return dto;
-    }
-
-    private VisaDto toVisaDto(Visa v) {
-        VisaDto dto = new VisaDto();
-        dto.setId(v.getId());
-        dto.setVisaNumber(v.getVisaNumber());
-        dto.setVisaType(v.getVisaType());
-        dto.setVisaPurpose(v.getVisaPurpose());
-        dto.setCountry(v.getCountryCode());
-        dto.setIssuePlace(v.getIssuePlace());
-        dto.setIssueDate(v.getIssueDate());
-        dto.setExpiryDate(v.getExpiryDate());
-        dto.setEntries(v.getEntries());
-        dto.setStatus(v.getVisaStatus());
-        return dto;
-    }
-
-    private RentalCertificateDto toRentalDto(RentalCertificate r) {
-        RentalCertificateDto dto = new RentalCertificateDto();
-        dto.setId(r.getId());
-        dto.setCertificateNumber(r.getCertificateNumber());
-        dto.setRentalType(r.getRentalType());
-        dto.setAddress(r.getAddress());
-        dto.setLandlordName(r.getLandlordName());
-        dto.setLandlordContact(r.getLandlordContact());
-        dto.setStartDate(r.getStartDate());
-        dto.setEndDate(r.getEndDate());
-        dto.setStatus(r.getStatus());
         return dto;
     }
 }
+//    // ------------------ Mapping Helpers ------------------
+//    private EmployeeDto mapEmployeeWithImmigration(Employee e) {
+//        EmployeeDto dto = new EmployeeDto();
+//        dto.setId(e.getId());
+//        dto.setStaffCode(e.getStaffCode());
+//        dto.setFirstName(e.getFirstName());
+//        dto.setLastName(e.getLastName());
+//        dto.setPhone(e.getPhone());
+//        dto.setEmail(e.getEmail());
+//        dto.setProvince(e.getProvince());
+//        dto.setVillage(e.getVillage());
+//
+//        passportRepository.findByEmployeeId(e.getId()).ifPresent(passport -> {
+//            PassportDto passportDto = PassportMapper.toPassportDto(passport);
+//
+//            List<VisaDto> visaDtos = visaRepository.findByPassportId(passport.getId())
+//                    .stream()
+//                    .map(visa -> {
+//                        VisaDto visaDto = VisaMapper.toVisaDto(visa);
+//
+//                        List<RentalCertificateDto> rentalDtos = rentalRepository.findByVisaId(visa.getId())
+//                                .stream()
+//                                .map(RentalCertificateMapper::toRentalDto)
+//                                .collect(Collectors.toList());
+//
+//                        visaDto.setRentalCertificates(rentalDtos);
+//                        return visaDto;
+//                    })
+//                    .collect(Collectors.toList());
+//
+//            passportDto.setVisas(visaDtos);
+//            dto.setPassport(passportDto);
+//        });
+//
+//        return dto;
+//    }
+//}

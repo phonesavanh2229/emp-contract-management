@@ -1,8 +1,8 @@
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.response;
 
 //import com.contractEmployee.contractEmployee.entity.Education;
-import com.contractEmployee.contractEmployee.entity.Employee;
-import com.contractEmployee.contractEmployee.entity.*;
+import com.contractEmployee.contractEmployee.dto.request.PassportDto;
+import com.contractEmployee.contractEmployee.dto.request.VisaDto;
 //import com.contractEmployee.contractEmployee.entity.IdentityCard;
 import lombok.*;
 
@@ -32,5 +32,7 @@ public class EmployeeResponse {
 //
 //    private IdentityCardDto identityCard;
 
+    private PassportDto passport;
+    private List<VisaDto> visas;
 
 }

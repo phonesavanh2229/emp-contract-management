@@ -1,12 +1,11 @@
 // VisaDto.java
-package com.contractEmployee.contractEmployee.dto;
+package com.contractEmployee.contractEmployee.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,6 +22,6 @@ public class VisaDto {
     private LocalDate expiryDate;
     private Integer entries;
     private String status;
-//    private List<VisaDto> visas = new ArrayList<>();
+    private List<RentalCertificateDto> rentalCertificates;
 
 }

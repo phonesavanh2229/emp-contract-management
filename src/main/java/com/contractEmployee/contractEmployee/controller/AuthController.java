@@ -1,6 +1,8 @@
 package com.contractEmployee.contractEmployee.controller;
 
-import com.contractEmployee.contractEmployee.dto.*;
+import com.contractEmployee.contractEmployee.dto.request.LoginRequest;
+import com.contractEmployee.contractEmployee.dto.request.RegisterRequest;
+import com.contractEmployee.contractEmployee.dto.response.AuthResponse;
 import com.contractEmployee.contractEmployee.entity.User;
 import com.contractEmployee.contractEmployee.rep.UserRepository;
 import com.contractEmployee.contractEmployee.services.AuthService;

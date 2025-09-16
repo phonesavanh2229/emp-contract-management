@@ -1,40 +1,44 @@
 package com.contractEmployee.contractEmployee.controller;
 
-import com.contractEmployee.contractEmployee.dto.ApiResponse;
-import com.contractEmployee.contractEmployee.dto.ImmigrationRequest;
-import com.contractEmployee.contractEmployee.dto.ImmigrationResponse;
-import com.contractEmployee.contractEmployee.dto.VisaSummaryDto;
+import com.contractEmployee.contractEmployee.dto.request.EmployeeDto;
+import com.contractEmployee.contractEmployee.dto.request.ImmigrationRequest;
+import com.contractEmployee.contractEmployee.dto.request.VisaSummaryDto;
+import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
+import com.contractEmployee.contractEmployee.dto.response.ImmigrationListResponse;
+import com.contractEmployee.contractEmployee.dto.response.ImmigrationResponse;
 import com.contractEmployee.contractEmployee.services.ImmigrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/immigration")
+@RequestMapping("/api/employee")
 @RequiredArgsConstructor
 public class ImmigrationController {
 
     private final ImmigrationService immigrationService;
-
     @PostMapping("/{employeeId}")
-    public ResponseEntity<ImmigrationResponse> saveImmigration(
+    public ResponseEntity<ApiResponse<EmployeeDto>> saveImmigration(
             @PathVariable Integer employeeId,
             @RequestBody ImmigrationRequest request) {
-        return ResponseEntity.ok(immigrationService.saveImmigration(employeeId, request));
+
+        return ResponseEntity.ok(
+                immigrationService.saveImmigration(employeeId, request)
+        );
+    }
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<EmployeeDto>>> getAllImmigrations() {
+        return ResponseEntity.ok(immigrationService.getImmigrationAll());
     }
 
     @GetMapping("/{employeeId}")
-    public ResponseEntity<ImmigrationResponse> getImmigration(@PathVariable Integer employeeId) {
-        return ResponseEntity.ok(immigrationService.getImmigration(employeeId));
+    public ResponseEntity<ApiResponse<List<EmployeeDto>>> getImmigrationById(@PathVariable Integer employeeId) {
+        return ResponseEntity.ok(immigrationService.getImmigrationByEmployeeId(employeeId));
     }
     @GetMapping("/visa-summary")
     public ResponseEntity<ApiResponse<VisaSummaryDto>> getVisaSummary() {
-        VisaSummaryDto summary = immigrationService.getVisaSummary();
-        ApiResponse<VisaSummaryDto> response = new ApiResponse<>(
-                true,
-                "Visa summary fetched successfully",
-                summary
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(immigrationService.getVisaSummary());
     }
 }

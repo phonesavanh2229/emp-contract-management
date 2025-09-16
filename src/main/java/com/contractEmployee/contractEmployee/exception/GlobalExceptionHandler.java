@@ -1,6 +1,6 @@
 package com.contractEmployee.contractEmployee.exception;
 
-import com.contractEmployee.contractEmployee.dto.ApiResponse;
+import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
