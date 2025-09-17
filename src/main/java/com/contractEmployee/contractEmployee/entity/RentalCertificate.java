@@ -27,7 +27,9 @@ public class RentalCertificate {
     private String certificateNumber;
 
     private String address;
-
+    @ManyToOne
+    @JoinColumn(name = "previous_rental_id")   // 👈 self reference
+    private RentalCertificate previousRental;
     @Column(name = "landlord_name")
     private String landlordName;
 
@@ -50,4 +52,5 @@ public class RentalCertificate {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+    private Boolean isCurrent = true;
 }

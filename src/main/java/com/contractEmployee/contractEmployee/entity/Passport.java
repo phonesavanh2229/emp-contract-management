@@ -55,4 +55,7 @@ public class Passport {
     @OneToMany(mappedBy = "passport", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Visa> visas = new ArrayList<>();
+    @Column(name = "is_current")
+    private Boolean isCurrent;
+
 }

@@ -1,5 +1,6 @@
 package com.contractEmployee.contractEmployee.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter; import lombok.Setter; import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp; import org.hibernate.annotations.UpdateTimestamp;
@@ -32,11 +33,19 @@ public class Visa {
     private LocalDate issueDate;
     private LocalDate expiryDate;
     private Integer entries;
-    private String visaStatus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "previous_visa_id")
+    @JsonIgnore
+    private Visa previousVisa;
 
+    @Column(name = "visa_status")
+    private String status;
+    private Boolean isCurrent = true;
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+
 }

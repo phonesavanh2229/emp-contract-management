@@ -11,12 +11,11 @@ import com.contractEmployee.contractEmployee.entity.RentalCertificate;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 public class EmployeeImmigrationMapper {
 
     public static EmployeeDto toEmployeeImmigrationDto(
             Employee e,
-            Passport passport,
+            List<Passport> passports,
             List<Visa> visas,
             List<RentalCertificate> rentals
     ) {
@@ -30,13 +29,17 @@ public class EmployeeImmigrationMapper {
         dto.setProvince(e.getProvince());
         dto.setVillage(e.getVillage());
 
-        if (passport != null) {
+        // ✅ map หลาย Passport
+        List<PassportDto> passportDtos = passports.stream().map(passport -> {
             PassportDto passportDto = PassportMapper.toPassportDto(passport);
 
+            // ✅ ดึง Visa ของ passport นี้
             List<VisaDto> visaDtos = visas.stream()
+                    .filter(v -> v.getPassport().getId().equals(passport.getId()))
                     .map(v -> {
                         VisaDto visaDto = VisaMapper.toVisaDto(v);
 
+                        // ✅ ดึง Rental ของ visa นี้
                         List<RentalCertificateDto> rentalDtos = rentals.stream()
                                 .filter(r -> r.getVisa().getId().equals(v.getId()))
                                 .map(RentalCertificateMapper::toRentalDto)
@@ -48,9 +51,10 @@ public class EmployeeImmigrationMapper {
                     .collect(Collectors.toList());
 
             passportDto.setVisas(visaDtos);
-            dto.setPassport(passportDto);
-        }
+            return passportDto;
+        }).collect(Collectors.toList());
 
+        dto.setPassports(passportDtos);
         return dto;
     }
 }

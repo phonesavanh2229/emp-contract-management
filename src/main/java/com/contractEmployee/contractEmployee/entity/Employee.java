@@ -58,7 +58,7 @@ public class Employee {
     private Branch branch;
 
     @ManyToOne
-    @JoinColumn(name = "department_branch_id")   // FK column in employee table
+    @JoinColumn(name = "department_branch_id")
     private DepartmentBranch departmentBranch;
 
     @CreationTimestamp
@@ -66,21 +66,8 @@ public class Employee {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    // --- Relationships ---
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Contract> contracts;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Education> educations;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<IdentityCard> identityCards;
-
     @JsonIgnore
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Passport> passports;
+    private Boolean isCurrent = true;
 }

@@ -1,10 +1,48 @@
 package com.contractEmployee.contractEmployee.rep;
 
 import com.contractEmployee.contractEmployee.entity.Passport;
+import com.contractEmployee.contractEmployee.entity.Visa;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface PassportRepository extends JpaRepository<Passport, Integer> {
-    Optional<Passport> findByEmployeeId(Integer employeeId);
+//    @Query("SELECT p FROM Passport p WHERE p.employee.id = :employeeId AND p.isCurrent = true")
+//    Passport findCurrentPassportByEmployeeId(@Param("employeeId") Integer employeeId);
+//    Optional<Passport> findFirstByEmployeeIdAndIsCurrentTrue(Integer employeeId);
+//    List<Passport> findAllByEmployeeIdAndIsCurrentTrue(Integer employeeId);
+//
+//    Optional<Passport> findByEmployeeId(Integer employeeId);
+////    Optional<Passport> findByEmployeeIdAndIsCurrentTrue(Integer employeeId);
+//    List<Passport> findByExpiryDateBeforeAndStatus(LocalDate today, String status);
+//    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate < :today OR p.status = 'INACTIVE'")
+//    long countExpired(@Param("today") LocalDate today);
+//
+//    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate BETWEEN :today AND :next180Days AND p.status = 'ACTIVE'")
+//    long countExpiring(@Param("today") LocalDate today, @Param("next180Days") LocalDate next180Days);
+//    long countByStatus(String Status);
+
+// ✅ คืน passport ล่าสุดแค่ 1 อัน
+@Query("SELECT p FROM Passport p " +
+        "WHERE p.employee.id = :employeeId AND p.isCurrent = true " +
+        "ORDER BY p.id DESC")
+Optional<Passport> findCurrentPassportByEmployeeId(@Param("employeeId") Integer employeeId);
+    List<Passport> findAllByEmployeeIdAndIsCurrentTrue(Integer employeeId);
+
+    List<Passport> findByEmployeeId(Integer employeeId);
+
+    List<Passport> findByExpiryDateBeforeAndStatus(LocalDate today, String status);
+
+    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate < :today OR p.status = 'INACTIVE'")
+    long countExpired(@Param("today") LocalDate today);
+
+    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate BETWEEN :today AND :next180Days AND p.status = 'ACTIVE'")
+    long countExpiring(@Param("today") LocalDate today, @Param("next180Days") LocalDate next180Days);
+
+    long countByStatus(String Status);
+
 }

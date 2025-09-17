@@ -17,7 +17,7 @@ public class VisaMapper {
         dto.setIssueDate(v.getIssueDate());
         dto.setExpiryDate(v.getExpiryDate());
         dto.setEntries(v.getEntries());
-        dto.setStatus(v.getVisaStatus());
+        dto.setStatus(v.getStatus());
         return dto;
     }
 }

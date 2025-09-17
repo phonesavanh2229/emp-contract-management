@@ -16,7 +16,7 @@ public class VisaDto {
     private String visaNumber;
     private String visaType;
     private String visaPurpose;
-    private String country;     // map -> country_code
+    private String country;
     private String issuePlace;
     private LocalDate issueDate;
     private LocalDate expiryDate;

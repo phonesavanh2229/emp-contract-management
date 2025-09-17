@@ -30,6 +30,9 @@ public class EmployeeDto {
     private DepartmentBranchDto departmentBranch;
 
     // immigration fields
-    private PassportDto passport;
+    private List<PassportDto> passports;
+
+//    private PassportDto passport;
     private List<VisaDto> visas;
+
 }
