@@ -1,23 +1,21 @@
 package com.contractEmployee.contractEmployee.mapper;
 
 import com.contractEmployee.contractEmployee.dto.request.PassportDto;
-import com.contractEmployee.contractEmployee.dto.request.RentalCertificateDto;
-import com.contractEmployee.contractEmployee.dto.request.VisaDto;
-import com.contractEmployee.contractEmployee.entity.*;
-
-import java.util.stream.Collectors;
+import com.contractEmployee.contractEmployee.entity.Passport;
 
 public class PassportMapper {
-    public static PassportDto toPassportDto(Passport p) {
+    public static PassportDto toDto(Passport passport) {
+        if (passport == null) return null;
+
         PassportDto dto = new PassportDto();
-        dto.setId(p.getId());
-        dto.setPassportNumber(p.getPassportNo());
-        dto.setPassportType(p.getPassportType());
-        dto.setCountry(p.getCountryCode());
-        dto.setIssuePlace(p.getIssuePlace());
-        dto.setIssueDate(p.getIssueDate());
-        dto.setExpiryDate(p.getExpiryDate());
-        dto.setStatus(p.getStatus());
+        dto.setId(passport.getId());
+        dto.setPassportNumber(passport.getPassportNo());
+        dto.setPassportType(passport.getPassportType());
+        dto.setCountry(passport.getCountryCode());
+        dto.setIssuePlace(passport.getIssuePlace());
+        dto.setStatus(passport.getStatus());
+        dto.setIssueDate(passport.getIssueDate());
+        dto.setExpiryDate(passport.getExpiryDate());
         return dto;
     }
 }

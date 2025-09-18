@@ -1,4 +1,4 @@
-package com.contractEmployee.contractEmployee.dto.request;
+package com.contractEmployee.contractEmployee.dto.response;
 
 
 import lombok.AllArgsConstructor;

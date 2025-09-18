@@ -1,42 +1,47 @@
 package com.contractEmployee.contractEmployee.services;
 
 import com.contractEmployee.contractEmployee.dto.request.*;
-import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
-import com.contractEmployee.contractEmployee.dto.response.ImmigrationResponse;
-
+import com.contractEmployee.contractEmployee.dto.response.SummaryDto;
+import com.contractEmployee.contractEmployee.entity.Passport;
+import com.contractEmployee.contractEmployee.entity.Visa;
+import com.contractEmployee.contractEmployee.entity.RentalCertificate;
 
 import java.util.List;
+
 public interface ImmigrationService {
-    ApiResponse<List<EmployeeDto>> getImmigrationAll();
-    ApiResponse<List<EmployeeDto>> getImmigrationByEmployeeId(Integer employeeId);
-    ApiResponse<EmployeeDto> saveImmigration(Integer employeeId, ImmigrationRequest request);
-    ApiResponse<List<SummaryDto>>getPassportSummary();
-    ApiResponse<List<SummaryDto>>getVisaSummary();
-    ApiResponse<List<SummaryDto>>getRentalCertificateSummary();
-    ApiResponse<EmployeeDto> renewPassport(Integer employeeId, PassportDto passportDto);
-    ApiResponse<EmployeeDto> renewVisa(Integer passportId, VisaDto visaDto);
-    ApiResponse<EmployeeDto> renewRental(Integer visaId, RentalCertificateDto rentalDto);
+    // Immigration aggregate
+    List<EmployeeDto> getImmigrationAll();
+    EmployeeDto getImmigrationByEmployeeId(Integer employeeId);
+    EmployeeDto saveImmigration(Integer employeeId, ImmigrationRequest request);
 
+    // Summary
+    List<SummaryDto> getPassportSummary();
+    List<SummaryDto> getVisaSummary();
+    List<SummaryDto> getRentalCertificateSummary();
 
+    // Renew
+    EmployeeDto renewPassport(Integer employeeId, PassportDto passportDto);
+    EmployeeDto renewVisa(Integer passportId, VisaDto visaDto);
+    EmployeeDto renewRental(Integer rentalId, RentalCertificateDto rentalDto);
 
     // Passport
-    ApiResponse<PassportDto> savePassport(Integer employeeId, PassportDto passportDto);
-    ApiResponse<PassportDto> getPassport(Integer passportId);
-    ApiResponse<List<PassportDto>> getPassportsByEmployee(Integer employeeId);
-    ApiResponse<PassportDto> updatePassport(Integer passportId, PassportDto passportDto);
-    ApiResponse<Void> deletePassport(Integer passportId);
+    Passport savePassport(Integer employeeId, PassportDto passportDto);
+    Passport getPassport(Integer passportId);
+    List<Passport> getPassportsByEmployee(Integer employeeId);
+    Passport updatePassport(Integer passportId, PassportDto passportDto);
+    void deletePassport(Integer passportId);
 
     // Visa
-    ApiResponse<VisaDto> saveVisa(Integer passportId, VisaDto visaDto);
-    ApiResponse<VisaDto> getVisa(Integer visaId);
-    ApiResponse<List<VisaDto>> getVisasByPassport(Integer passportId);
-    ApiResponse<VisaDto> updateVisa(Integer visaId, VisaDto visaDto);
-    ApiResponse<Void> deleteVisa(Integer visaId);
+    Visa saveVisa(Integer passportId, VisaDto visaDto);
+    Visa getVisa(Integer visaId);
+    List<Visa> getVisasByPassport(Integer passportId);
+    Visa updateVisa(Integer visaId, VisaDto visaDto);
+    void deleteVisa(Integer visaId);
 
     // Rental
-    ApiResponse<RentalCertificateDto> saveRental(Integer visaId, RentalCertificateDto rentalDto);
-    ApiResponse<RentalCertificateDto> getRental(Integer rentalId);
-    ApiResponse<List<RentalCertificateDto>> getRentalsByVisa(Integer visaId);
-    ApiResponse<RentalCertificateDto> updateRental(Integer rentalId, RentalCertificateDto rentalDto);
-    ApiResponse<Void> deleteRental(Integer rentalId);
+    RentalCertificate saveRental(Integer visaId, RentalCertificateDto rentalDto);
+    RentalCertificate getRental(Integer rentalId);
+    List<RentalCertificate> getRentalsByVisa(Integer visaId);
+    RentalCertificate updateRental(Integer rentalId, RentalCertificateDto rentalDto);
+    void deleteRental(Integer rentalId);
 }
