@@ -1,7 +1,11 @@
 package com.contractEmployee.contractEmployee.services;
 
 import com.contractEmployee.contractEmployee.dto.request.*;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithPassportDto;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithVisaDto;
+import com.contractEmployee.contractEmployee.dto.response.SummaryPVRDto;
 import com.contractEmployee.contractEmployee.dto.response.SummaryDto;
+import com.contractEmployee.contractEmployee.entity.Employee;
 import com.contractEmployee.contractEmployee.entity.Passport;
 import com.contractEmployee.contractEmployee.entity.Visa;
 import com.contractEmployee.contractEmployee.entity.RentalCertificate;
@@ -9,12 +13,21 @@ import com.contractEmployee.contractEmployee.entity.RentalCertificate;
 import java.util.List;
 
 public interface ImmigrationService {
+
+    List<EmployeeWithPassportDto> getEmployeesWithActivePassports();
+    List<EmployeeWithPassportDto> getEmployeesWithExpiringPassports();
+    List<EmployeeWithPassportDto> getEmployeesWithExpiredPassports();
+    List<EmployeeWithVisaDto> getEmployeesWithActiveVisas();
+    List<EmployeeWithVisaDto> getEmployeesWithExpiredVisas();
+
+//    List<EmployeeWithVisaDto> getEmployeesWithExpiringVisas();
     // Immigration aggregate
     List<EmployeeDto> getImmigrationAll();
     EmployeeDto getImmigrationByEmployeeId(Integer employeeId);
     EmployeeDto saveImmigration(Integer employeeId, ImmigrationRequest request);
 
     // Summary
+    List<SummaryDto> getSummary();
     List<SummaryDto> getPassportSummary();
     List<SummaryDto> getVisaSummary();
     List<SummaryDto> getRentalCertificateSummary();
@@ -33,7 +46,7 @@ public interface ImmigrationService {
 
     // Visa
     Visa saveVisa(Integer passportId, VisaDto visaDto);
-    Visa getVisa(Integer visaId);
+    List<Visa> getVisa(Integer visaId);
     List<Visa> getVisasByPassport(Integer passportId);
     Visa updateVisa(Integer visaId, VisaDto visaDto);
     void deleteVisa(Integer visaId);

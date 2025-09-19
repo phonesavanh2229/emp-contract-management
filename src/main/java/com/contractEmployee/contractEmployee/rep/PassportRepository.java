@@ -11,22 +11,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PassportRepository extends JpaRepository<Passport, Integer> {
-//    @Query("SELECT p FROM Passport p WHERE p.employee.id = :employeeId AND p.isCurrent = true")
-//    Passport findCurrentPassportByEmployeeId(@Param("employeeId") Integer employeeId);
-//    Optional<Passport> findFirstByEmployeeIdAndIsCurrentTrue(Integer employeeId);
-//    List<Passport> findAllByEmployeeIdAndIsCurrentTrue(Integer employeeId);
-//
-//    Optional<Passport> findByEmployeeId(Integer employeeId);
-////    Optional<Passport> findByEmployeeIdAndIsCurrentTrue(Integer employeeId);
-//    List<Passport> findByExpiryDateBeforeAndStatus(LocalDate today, String status);
-//    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate < :today OR p.status = 'INACTIVE'")
-//    long countExpired(@Param("today") LocalDate today);
-//
-//    @Query("SELECT COUNT(p) FROM Passport p WHERE p.expiryDate BETWEEN :today AND :next180Days AND p.status = 'ACTIVE'")
-//    long countExpiring(@Param("today") LocalDate today, @Param("next180Days") LocalDate next180Days);
-//    long countByStatus(String Status);
-
-// ✅ คืน passport ล่าสุดแค่ 1 อัน
+@Query("SELECT p FROM Passport p WHERE p.status = 'ACTIVE'")
+    List<Passport> findActivePassports();
+    List<Passport> findByExpiryDateBetweenAndStatus(LocalDate start, LocalDate end, String status);
+    List<Passport> findByExpiryDateLessThanEqual(LocalDate date);
+    // ✅ คืน passport ล่าสุดแค่ 1 อัน
 @Query("SELECT p FROM Passport p " +
         "WHERE p.employee.id = :employeeId AND p.isCurrent = true " +
         "ORDER BY p.id DESC")

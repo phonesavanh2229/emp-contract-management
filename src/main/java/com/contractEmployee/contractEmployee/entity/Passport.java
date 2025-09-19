@@ -16,8 +16,8 @@ public class Passport {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id", nullable = false)
-    @JsonIgnore
+    @JoinColumn(name = "employee_id")
+    @JsonIgnore   // ป้องกัน serialization loop
     private Employee employee;
 
     @Column(name = "passport_no", nullable = false, unique = true)

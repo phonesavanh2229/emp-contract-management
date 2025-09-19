@@ -32,23 +32,23 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth .anyRequest().permitAll()
-//                        .requestMatchers("/api/**","/api/emp","/api/auth/users","/api/auth/login").permitAll()
-//                        // ADMIN only
-//                        .requestMatchers("/api/contracts/renew").hasRole("ADMIN")
-////                        .requestMatchers("/api/auth/users").hasRole("ADMIN")
-//                        .requestMatchers( "/api/emp/contract-summary").hasRole("ADMIN")
-//                        // USER + ADMIN
-////                        .requestMatchers("/api/emp/**").hasAnyRole("USER", "ADMIN")
-//                        // everything else
-//                        .anyRequest().authenticated()
-////                        "/api/auth/refresh"
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/**","/api/emp","/api/auth/users","/api/auth/login").permitAll()
+                        // ADMIN only
+                        .requestMatchers("/api/contracts/renew").hasRole("ADMIN")
+//                        .requestMatchers("/api/auth/users").hasRole("ADMIN")
+                        .requestMatchers( "/api/emp/contract-summary").hasRole("ADMIN")
+                        // USER + ADMIN
+//                        .requestMatchers("/api/emp/**").hasAnyRole("USER", "ADMIN")
+                        // everything else
+                        .anyRequest().authenticated()
+//                        "/api/auth/refresh"
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
+//.anyRequest().permitAll()
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

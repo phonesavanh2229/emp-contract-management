@@ -2,6 +2,8 @@ package com.contractEmployee.contractEmployee.controller;
 
 import com.contractEmployee.contractEmployee.dto.request.*;
 import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithPassportDto;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithVisaDto;
 import com.contractEmployee.contractEmployee.dto.response.SummaryDto;
 import com.contractEmployee.contractEmployee.entity.Passport;
 import com.contractEmployee.contractEmployee.entity.Visa;
@@ -23,7 +25,7 @@ public class ImmigrationController {
     private final ImmigrationService immigrationService;
 
     // ----------------------- 📌 IMMIGRATION -----------------------
-    @GetMapping("")
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<EmployeeDto>>> getAllImmigrations(HttpServletRequest request) {
         List<EmployeeDto> all = immigrationService.getImmigrationAll();
         return ResponseEntity.ok(
@@ -117,11 +119,19 @@ public class ImmigrationController {
         );
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<List<SummaryDto>>> getImmigrationSummary(HttpServletRequest request) {
+        List<SummaryDto> summary = immigrationService.getSummary();
+        return ResponseEntity.ok(
+                ApiResponse.success("Summary fetched successfully", summary, request.getRequestURI())
+        );
+    }
+
     @GetMapping("/visas/{visaId}")
-    public ResponseEntity<ApiResponse<Visa>> getVisa(
+    public ResponseEntity<ApiResponse<List<Visa>>> getVisa(
             HttpServletRequest request,
             @PathVariable Integer visaId) {
-        Visa visa = immigrationService.getVisa(visaId);
+      List<Visa> visa = immigrationService.getVisa(visaId);
         return ResponseEntity.ok(
                 ApiResponse.success("Visa fetched successfully", visa, request.getRequestURI())
         );
@@ -269,4 +279,61 @@ public class ImmigrationController {
                 ApiResponse.success("Rental certificate renewed successfully", dto, request.getRequestURI())
         );
     }
+
+    @GetMapping("/passports-active")
+    public ResponseEntity<ApiResponse<List<EmployeeWithPassportDto>>> getEmployeesWithActivePassports(HttpServletRequest request) {
+        List<EmployeeWithPassportDto> result = immigrationService.getEmployeesWithActivePassports();
+        return ResponseEntity.ok(
+                ApiResponse.success("Employees with ACTIVE passports fetched successfully", result, request.getRequestURI())
+        );
+    }
+
+    @GetMapping("/passports-expiring")
+    public ResponseEntity<ApiResponse<List<EmployeeWithPassportDto>>> getEmployeesWithExpiringPassports(HttpServletRequest request) {
+        List<EmployeeWithPassportDto> employees = immigrationService.getEmployeesWithExpiringPassports();
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Employees with expiring passports fetched successfully",
+                        employees,
+                        request.getRequestURI()
+                )
+        );
+    }
+    @GetMapping("/passports-expired")
+    public ResponseEntity<ApiResponse<List<EmployeeWithPassportDto>>> getEmployeesWithExpiredPassports(HttpServletRequest request) {
+        List<EmployeeWithPassportDto> employees = immigrationService.getEmployeesWithExpiredPassports();
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Employees with expired passports fetched successfully",
+                        employees,
+                        request.getRequestURI()
+                )
+        );
+    }
+
+    @GetMapping("/visas-active")
+    public ResponseEntity<ApiResponse<List<EmployeeWithVisaDto>>> getEmployeesWithActiveVisas(HttpServletRequest request) {
+        List<EmployeeWithVisaDto> employees = immigrationService.getEmployeesWithActiveVisas();
+        return ResponseEntity.ok(
+                ApiResponse.success("Employees with ACTIVE visas fetched successfully", employees, request.getRequestURI())
+        );
+    }
+
+    @GetMapping("/visas-expired")
+    public ResponseEntity<ApiResponse<List<EmployeeWithVisaDto>>> getExpiredVisas(HttpServletRequest request) {
+        List<EmployeeWithVisaDto> result = immigrationService.getEmployeesWithExpiredVisas();
+        return ResponseEntity.ok(
+                ApiResponse.success("Employees with expired visas fetched successfully", result, request.getRequestURI())
+        );
+    }
+
+//    @GetMapping("/visas-expiring")
+//    public ResponseEntity<ApiResponse<List<EmployeeWithVisaDto>>> getExpiringVisas(HttpServletRequest request) {
+//        List<EmployeeWithVisaDto> result = immigrationService.getEmployeesWithExpiringVisas();
+//        return ResponseEntity.ok(
+//                ApiResponse.success("Employees with expiring visas fetched successfully", result, request.getRequestURI())
+//        );
+//    }
+
+
 }

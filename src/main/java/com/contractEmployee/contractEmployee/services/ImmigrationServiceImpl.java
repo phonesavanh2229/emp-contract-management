@@ -1,7 +1,9 @@
 package com.contractEmployee.contractEmployee.services;
 
 import com.contractEmployee.contractEmployee.dto.request.*;
-import com.contractEmployee.contractEmployee.dto.response.ApiResponse;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithPassportDto;
+import com.contractEmployee.contractEmployee.dto.response.EmployeeWithVisaDto;
+import com.contractEmployee.contractEmployee.dto.response.SummaryPVRDto;
 import com.contractEmployee.contractEmployee.dto.response.SummaryDto;
 import com.contractEmployee.contractEmployee.entity.Employee;
 import com.contractEmployee.contractEmployee.entity.Passport;
@@ -22,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ImmigrationServiceImpl implements ImmigrationService {
@@ -32,6 +34,233 @@ public class ImmigrationServiceImpl implements ImmigrationService {
     private final PassportRepository passportRepository;
     private final VisaRepository visaRepository;
     private final RentalCertificateRepository rentalRepository;
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeWithVisaDto> getEmployeesWithActiveVisas() {
+        LocalDate today = LocalDate.now();
+        List<Visa> activeVisas = visaRepository.findByStatus("ACTIVE");
+
+        // group by employee
+        return activeVisas.stream()
+                .collect(Collectors.groupingBy(v -> v.getPassport().getEmployee()))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    Employee e = entry.getKey();
+                    List<Visa> visas = entry.getValue();
+
+                    return new EmployeeWithVisaDto(
+                            e.getId(),
+                            e.getStaffCode(),
+                            e.getFirstName(),
+                            e.getLastName(),
+                            e.getPhone(),
+                            e.getEmail(),
+                            e.getProvince(),
+                            e.getVillage(),
+                            visas
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeWithVisaDto> getEmployeesWithExpiredVisas() {
+        LocalDate today = LocalDate.now();
+
+        // visas ที่หมดอายุแล้ว
+        List<Visa> expiredVisas = visaRepository.findByExpiryDateLessThanEqualAndStatus(today, "ACTIVE");
+
+        return expiredVisas.stream()
+                .map(Visa::getPassport)
+                .map(Passport::getEmployee)
+                .distinct()
+                .map(e -> {
+                    List<Visa> onlyExpired = e.getPassports().stream()
+                            .flatMap(p -> p.getVisas().stream())
+                            .filter(v -> v.getExpiryDate() != null &&
+                                    (v.getExpiryDate().isBefore(today) ||
+                                            v.getExpiryDate().isEqual(today)))
+                            .toList();
+                    return new EmployeeWithVisaDto(
+                            e.getId(),
+                            e.getStaffCode(),
+                            e.getFirstName(),
+                            e.getLastName(),
+                            e.getPhone(),
+                            e.getEmail(),
+                            e.getProvince(),
+                            e.getVillage(),
+                            onlyExpired
+                    );
+                })
+                .toList();
+    }
+
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<EmployeeWithVisaDto> getEmployeesWithExpiringVisas() {
+//        LocalDate today = LocalDate.now();
+//        LocalDate next180Days = today.plusDays(180);
+//
+//        // visas ที่จะหมดอายุในอีก 180 วัน
+//        List<Visa> expiringVisas = visaRepository.findByExpiryDateBeforeAndStatusNot(today, next180Days, "ACTIVE");
+//
+//        return expiringVisas.stream()
+//                .map(Visa::getPassport)
+//                .map(Passport::getEmployee)
+//                .distinct()
+//                .map(e -> {
+//                    List<Visa> onlyExpiring = e.getPassports().stream()
+//                            .flatMap(p -> p.getVisas().stream())
+//                            .filter(v -> "ACTIVE".equalsIgnoreCase(v.getStatus())
+//                                    && v.getExpiryDate() != null
+//                                    && !v.getExpiryDate().isBefore(today)
+//                                    && !v.getExpiryDate().isAfter(next180Days))
+//                            .toList();
+//                    return new EmployeeWithVisaDto(
+//                            e.getId(),
+//                            e.getStaffCode(),
+//                            e.getFirstName(),
+//                            e.getLastName(),
+//                            e.getPhone(),
+//                            e.getEmail(),
+//                            e.getProvince(),
+//                            e.getVillage(),
+//                            onlyExpiring
+//                    );
+//                })
+//                .toList();
+//    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeWithPassportDto> getEmployeesWithExpiredPassports() {
+        LocalDate today = LocalDate.now();
+
+        // ดึง passport ที่หมดอายุแล้ว (<= วันนี้)
+        List<Passport> expiredPassports = passportRepository.findByExpiryDateLessThanEqual(today);
+
+        return expiredPassports.stream()
+                .map(Passport::getEmployee)
+                .distinct()
+                .map(e -> {
+                    EmployeeWithPassportDto dto = new EmployeeWithPassportDto();
+                    dto.setId(e.getId());
+                    dto.setStaffCode(e.getStaffCode());
+                    dto.setFirstName(e.getFirstName());
+                    dto.setLastName(e.getLastName());
+                    dto.setPhone(e.getPhone());
+                    dto.setEmail(e.getEmail());
+                    dto.setProvince(e.getProvince());
+                    dto.setVillage(e.getVillage());
+
+                    // ให้เฉพาะ passport ที่ expired
+                    List<Passport> onlyExpired = e.getPassports().stream()
+                            .filter(p -> p.getExpiryDate() != null &&
+                                    (p.getExpiryDate().isBefore(today) ||
+                                            p.getExpiryDate().isEqual(today)))
+                            .map(p -> {
+                                Passport pd = new Passport();
+                                pd.setId(p.getId());
+                                pd.setPassportNo(p.getPassportNo());
+                                pd.setPassportType(p.getPassportType());
+                                pd.setCountryCode(p.getCountryCode());
+                                pd.setIssuePlace(p.getIssuePlace());
+                                pd.setStatus(p.getStatus());
+                                pd.setIssueDate(p.getIssueDate());
+                                pd.setExpiryDate(p.getExpiryDate());
+                                return pd;
+                            })
+                            .toList();
+
+                    dto.setPassports(onlyExpired);
+                    return dto;
+                })
+                .toList();
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeWithPassportDto> getEmployeesWithExpiringPassports() {
+        LocalDate today = LocalDate.now();
+        LocalDate next180Days = today.plusDays(180);
+
+        // ดึง passport ที่กำลังจะหมดอายุ (ระหว่างวันนี้ - 180 วันข้างหน้า)
+        List<Passport> expiringPassports =
+                passportRepository.findByExpiryDateBetweenAndStatus(today, next180Days, "ACTIVE");
+
+        return expiringPassports.stream()
+                .map(Passport::getEmployee)
+                .distinct()
+                .map(e -> {
+                    EmployeeWithPassportDto dto = new EmployeeWithPassportDto();
+                    dto.setId(e.getId());
+                    dto.setStaffCode(e.getStaffCode());
+                    dto.setFirstName(e.getFirstName());
+                    dto.setLastName(e.getLastName());
+                    dto.setPhone(e.getPhone());
+                    dto.setEmail(e.getEmail());
+                    dto.setProvince(e.getProvince());
+                    dto.setVillage(e.getVillage());
+
+                    // ให้เฉพาะ passport ที่กำลังจะหมดอายุ
+                    List<Passport> onlyExpiring = e.getPassports().stream()
+                            .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus())
+                                    && p.getExpiryDate() != null
+                                    && (!p.getExpiryDate().isBefore(today) &&
+                                    !p.getExpiryDate().isAfter(next180Days)))
+                            .map(p -> {
+                                Passport pd = new Passport();
+                                pd.setId(p.getId());
+                                pd.setPassportNo(p.getPassportNo());
+                                pd.setPassportType(p.getPassportType());
+                                pd.setCountryCode(p.getCountryCode());
+                                pd.setIssuePlace(p.getIssuePlace());
+                                pd.setStatus(p.getStatus());
+                                pd.setIssueDate(p.getIssueDate());
+                                pd.setExpiryDate(p.getExpiryDate());
+                                return pd;
+                            })
+                            .toList();
+
+                    dto.setPassports(onlyExpiring);
+                    return dto;
+                })
+                .toList();
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EmployeeWithPassportDto> getEmployeesWithActivePassports() {
+        List<Passport> activePassports = passportRepository.findActivePassports();
+
+        // group by employee
+        return activePassports.stream()
+                .collect(Collectors.groupingBy(Passport::getEmployee))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var e = entry.getKey();
+                    return new EmployeeWithPassportDto(
+                            e.getId(),
+                            e.getStaffCode(),
+                            e.getFirstName(),
+                            e.getLastName(),
+                            e.getPhone(),
+                            e.getEmail(),
+                            e.getProvince(),
+                            e.getVillage(),
+                            entry.getValue() // active passports
+                    );
+                })
+                .toList();
+    }
 
     // ---------- Immigration ----------
     @Override
@@ -106,6 +335,27 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
         return mapEmployeeWithImmigration(employee);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<SummaryDto> getSummary() {
+        SummaryDto passport = new SummaryDto("Passport",
+                getPassportSummary().get(0).getTotalActive(),
+                getPassportSummary().get(0).getTotalExpiring(),
+                getPassportSummary().get(0).getTotalExpired());
+
+        SummaryDto visa = new SummaryDto("visa",
+                getVisaSummary().get(0).getTotalActive(),
+                getVisaSummary().get(0).getTotalExpiring(),
+                getVisaSummary().get(0).getTotalExpired());
+
+        SummaryDto rental = new SummaryDto("Rental",
+                getRentalCertificateSummary().get(0).getTotalActive(),
+                getRentalCertificateSummary().get(0).getTotalExpiring(),
+                getRentalCertificateSummary().get(0).getTotalExpired());
+
+        return List.of(passport, visa, rental);
+    }
+
 
     @Override
     @Transactional
@@ -123,7 +373,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
         long expiring = passportRepository.countExpiring(today, next180Days);
         long expired = passportRepository.countExpired(today);
 
-        return List.of(new SummaryDto(active, expiring, expired));
+        return List.of(new SummaryDto("Passport",active, expiring, expired));
     }
 
     @Override
@@ -145,7 +395,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
         long expiring = visaRepository.countExpiring(today, next30Days);
         long expired = visaRepository.countExpired(today);
 
-        return List.of(new SummaryDto(active, expiring, expired));
+        return List.of(new SummaryDto("Visa",active, expiring, expired));
     }
 
     @Override
@@ -164,7 +414,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
         long expiring = rentalRepository.countExpiring(today, next30Days);
         long expired = rentalRepository.countExpired(today);
 
-        return List.of(new SummaryDto(active, expiring, expired));
+        return List.of(new SummaryDto("Rental Certificate",active, expiring, expired));
     }
 
 
@@ -360,9 +610,10 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Visa getVisa(Integer visaId) {
-        return visaRepository.findById(visaId)
+    public  List<Visa> getVisa(Integer visaId) {
+        Visa  visa =visaRepository.findById(visaId)
                 .orElseThrow(() -> new EntityNotFoundException("Visa not found: " + visaId));
+        return List.of(visa);
     }
 
     @Override
