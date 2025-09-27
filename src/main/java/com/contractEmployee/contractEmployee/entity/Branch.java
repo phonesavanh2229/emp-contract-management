@@ -16,7 +16,7 @@ public class Branch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")   // 👈 ต้องใช้ "id" ไม่ใช่ "branch_id"
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;

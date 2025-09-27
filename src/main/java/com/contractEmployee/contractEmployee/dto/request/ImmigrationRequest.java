@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class ImmigrationRequest {
-    private Integer id;
+    private Long id;
     private String staffCode;
     private String firstName;
     private String lastName;

@@ -8,13 +8,13 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface RentalCertificateRepository extends JpaRepository<RentalCertificate, Integer> {
-    List<RentalCertificate> findAllByVisaIdAndIsCurrentTrue(Integer visaId);
-    List<RentalCertificate> findByVisa_Passport_Id(Integer passportId);
+public interface RentalCertificateRepository extends JpaRepository<RentalCertificate, Long> {
+    List<RentalCertificate> findAllByVisaIdAndIsCurrentTrue(Long visaId);
+    List<RentalCertificate> findByVisa_Passport_Id(Long passportId);
 
-    List<RentalCertificate> findByVisaId(Integer visaId);
+    List<RentalCertificate> findByVisaId(Long visaId);
 
-    List<RentalCertificate> findByVisaIdAndIsCurrentTrue(Integer visaId);
+    List<RentalCertificate> findByVisaIdAndIsCurrentTrue(Long visaId);
 
     long countByStatus(String status);
 

@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VisaDto {
-    private Integer id;
+    private Long id;
     private String visaNumber;
     private String visaType;
     private String visaPurpose;
@@ -20,7 +20,7 @@ public class VisaDto {
     private String issuePlace;
     private LocalDate issueDate;
     private LocalDate expiryDate;
-    private Integer entries;
+    private Long entries;
     private String status;
     private List<RentalCertificateDto> rentalCertificates;
 

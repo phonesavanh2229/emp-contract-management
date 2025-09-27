@@ -1,6 +1,7 @@
 package com.contractEmployee.contractEmployee.mapper;
 
 import com.contractEmployee.contractEmployee.dto.request.DepartmentBranchDto;
+import com.contractEmployee.contractEmployee.dto.request.DepartmentDto;
 import com.contractEmployee.contractEmployee.entity.DepartmentBranch;
 
 public class DepartmentBranchMapper {
@@ -11,12 +12,16 @@ public class DepartmentBranchMapper {
         DepartmentBranchDto dto = new DepartmentBranchDto();
         dto.setId(entity.getId());
 
-        // map department
+        // map department -> DepartmentDto
         if (entity.getDepartment() != null) {
-            dto.setDepartment(DepartmentMapper.toDto(entity.getDepartment()));
+            DepartmentDto deptDto = new DepartmentDto();
+            deptDto.setId(entity.getDepartment().getId());
+            deptDto.setDepartmentName(entity.getDepartment().getDepartmentName());
+            deptDto.setLocation(entity.getDepartment().getLocation());
+            dto.setDepartment(deptDto);
         }
 
-        // map branch
+        // map branch -> BranchDto
         if (entity.getBranch() != null) {
             dto.setBranch(BranchMapper.toDto(entity.getBranch()));
         }
@@ -24,3 +29,4 @@ public class DepartmentBranchMapper {
         return dto;
     }
 }
+

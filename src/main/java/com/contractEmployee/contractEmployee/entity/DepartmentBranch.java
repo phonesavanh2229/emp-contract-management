@@ -17,12 +17,11 @@ public class DepartmentBranch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")   //
-    private Integer id;
+    private Long id;
     // --- Many-to-One: Department ---
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
-
     // --- Many-to-One: Branch ---
     @ManyToOne
     @JoinColumn(name = "branch_id", nullable = false)

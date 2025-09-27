@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DepartmentDto {
-    private Integer id;
+    private Long id;
     private String departmentName;
     private String location;
 }

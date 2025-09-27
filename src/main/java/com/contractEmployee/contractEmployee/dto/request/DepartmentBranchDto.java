@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class DepartmentBranchDto {
-    private Integer id;
+    private Long id;
 
-    private DepartmentDto department;
+    private DepartmentDto  department;
     private BranchDto branch;
 }

@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class RentalCertificateDto {
-    private Integer id;
+    private Long id;
     private String certificateNumber;
     private String rentalType;
     private String address;

@@ -1,9 +1,8 @@
-package com.contractEmployee.contractEmployee.services;
+package com.contractEmployee.contractEmployee.services.Impl;
 
 import com.contractEmployee.contractEmployee.dto.request.*;
 import com.contractEmployee.contractEmployee.dto.response.EmployeeWithPassportDto;
 import com.contractEmployee.contractEmployee.dto.response.EmployeeWithVisaDto;
-import com.contractEmployee.contractEmployee.dto.response.SummaryPVRDto;
 import com.contractEmployee.contractEmployee.dto.response.SummaryDto;
 import com.contractEmployee.contractEmployee.entity.Employee;
 import com.contractEmployee.contractEmployee.entity.Passport;
@@ -17,8 +16,11 @@ import com.contractEmployee.contractEmployee.rep.EmployeeRepository;
 import com.contractEmployee.contractEmployee.rep.PassportRepository;
 import com.contractEmployee.contractEmployee.rep.RentalCertificateRepository;
 import com.contractEmployee.contractEmployee.rep.VisaRepository;
+import com.contractEmployee.contractEmployee.services.PassportVisaRentalCertificateService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ImmigrationServiceImpl implements ImmigrationService {
+public class PassportVisaRentalCertificateServiceImpl implements PassportVisaRentalCertificateService {
 
     private final EmployeeRepository employeeRepository;
     private final PassportRepository passportRepository;
@@ -98,41 +100,6 @@ public class ImmigrationServiceImpl implements ImmigrationService {
                 .toList();
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public List<EmployeeWithVisaDto> getEmployeesWithExpiringVisas() {
-//        LocalDate today = LocalDate.now();
-//        LocalDate next180Days = today.plusDays(180);
-//
-//        // visas ที่จะหมดอายุในอีก 180 วัน
-//        List<Visa> expiringVisas = visaRepository.findByExpiryDateBeforeAndStatusNot(today, next180Days, "ACTIVE");
-//
-//        return expiringVisas.stream()
-//                .map(Visa::getPassport)
-//                .map(Passport::getEmployee)
-//                .distinct()
-//                .map(e -> {
-//                    List<Visa> onlyExpiring = e.getPassports().stream()
-//                            .flatMap(p -> p.getVisas().stream())
-//                            .filter(v -> "ACTIVE".equalsIgnoreCase(v.getStatus())
-//                                    && v.getExpiryDate() != null
-//                                    && !v.getExpiryDate().isBefore(today)
-//                                    && !v.getExpiryDate().isAfter(next180Days))
-//                            .toList();
-//                    return new EmployeeWithVisaDto(
-//                            e.getId(),
-//                            e.getStaffCode(),
-//                            e.getFirstName(),
-//                            e.getLastName(),
-//                            e.getPhone(),
-//                            e.getEmail(),
-//                            e.getProvince(),
-//                            e.getVillage(),
-//                            onlyExpiring
-//                    );
-//                })
-//                .toList();
-//    }
 
 
     @Override
@@ -263,18 +230,26 @@ public class ImmigrationServiceImpl implements ImmigrationService {
     }
 
     // ---------- Immigration ----------
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<EmployeeDto> getImmigrationAll() {
+//        return employeeRepository.findAll()
+//                .stream()
+//                .map(this::mapEmployeeWithImmigration)
+//                .toList();
+//    }
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeDto> getImmigrationAll() {
-        return employeeRepository.findAll()
-                .stream()
-                .map(this::mapEmployeeWithImmigration)
-                .toList();
+    public Page<EmployeeDto> getImmigrationAll(Pageable pageable) {
+        return employeeRepository.findAll(pageable)
+                .map(this::mapEmployeeWithImmigration);
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
-    public EmployeeDto getImmigrationByEmployeeId(Integer employeeId) {
+    public EmployeeDto getImmigrationByEmployeeId(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
         return mapEmployeeWithImmigration(employee);
@@ -282,7 +257,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public EmployeeDto saveImmigration(Integer employeeId, ImmigrationRequest request) {
+    public EmployeeDto saveImmigration(Long employeeId, ImmigrationRequest request) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
 
@@ -420,7 +395,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public EmployeeDto renewPassport(Integer employeeId, PassportDto dto) {
+    public EmployeeDto renewPassport(Long employeeId, PassportDto dto) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
 
@@ -465,7 +440,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public EmployeeDto renewVisa(Integer passportId, VisaDto dto) {
+    public EmployeeDto renewVisa(Long passportId, VisaDto dto) {
         Passport passport = passportRepository.findById(passportId)
                 .orElseThrow(() -> new EntityNotFoundException("Passport not found: " + passportId));
 
@@ -498,7 +473,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public EmployeeDto renewRental(Integer rentalId, RentalCertificateDto dto) {
+    public EmployeeDto renewRental(Long rentalId, RentalCertificateDto dto) {
         RentalCertificate oldRental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new EntityNotFoundException("Rental not found: " + rentalId));
 
@@ -530,7 +505,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
     // ---------- Passport ----------
     @Override
     @Transactional
-    public Passport savePassport(Integer employeeId, PassportDto passportDto) {
+    public Passport savePassport(Long employeeId, PassportDto passportDto) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found: " + employeeId));
 
@@ -549,20 +524,20 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Passport getPassport(Integer passportId) {
+    public Passport getPassport(Long passportId) {
         return passportRepository.findById(passportId)
                 .orElseThrow(() -> new EntityNotFoundException("Passport not found: " + passportId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Passport> getPassportsByEmployee(Integer employeeId) {
+    public List<Passport> getPassportsByEmployee(Long employeeId) {
         return passportRepository.findByEmployeeId(employeeId);
     }
 
     @Override
     @Transactional
-    public Passport updatePassport(Integer passportId, PassportDto passportDto) {
+    public Passport updatePassport(Long passportId, PassportDto passportDto) {
         Passport passport = passportRepository.findById(passportId)
                 .orElseThrow(() -> new EntityNotFoundException("Passport not found: " + passportId));
 
@@ -579,7 +554,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public void deletePassport(Integer passportId) {
+    public void deletePassport(Long passportId) {
         if (!passportRepository.existsById(passportId)) {
             throw new EntityNotFoundException("Passport not found: " + passportId);
         }
@@ -589,7 +564,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
     // ---------- Visa ----------
     @Override
     @Transactional
-    public Visa saveVisa(Integer passportId, VisaDto visaDto) {
+    public Visa saveVisa(Long passportId, VisaDto visaDto) {
         Passport passport = passportRepository.findById(passportId)
                 .orElseThrow(() -> new EntityNotFoundException("Passport not found: " + passportId));
 
@@ -610,7 +585,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public  List<Visa> getVisa(Integer visaId) {
+    public  List<Visa> getVisa(Long visaId) {
         Visa  visa =visaRepository.findById(visaId)
                 .orElseThrow(() -> new EntityNotFoundException("Visa not found: " + visaId));
         return List.of(visa);
@@ -618,13 +593,13 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Visa> getVisasByPassport(Integer passportId) {
+    public List<Visa> getVisasByPassport(Long passportId) {
         return visaRepository.findByPassportId(passportId);
     }
 
     @Override
     @Transactional
-    public Visa updateVisa(Integer visaId, VisaDto visaDto) {
+    public Visa updateVisa(Long visaId, VisaDto visaDto) {
         Visa visa = visaRepository.findById(visaId)
                 .orElseThrow(() -> new EntityNotFoundException("Visa not found: " + visaId));
 
@@ -643,14 +618,14 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public void deleteVisa(Integer visaId) {
+    public void deleteVisa(Long visaId) {
         visaRepository.deleteById(visaId);
     }
 
     // ---------- Rental ----------
     @Override
     @Transactional
-    public RentalCertificate saveRental(Integer visaId, RentalCertificateDto rentalDto) {
+    public RentalCertificate saveRental(Long visaId, RentalCertificateDto rentalDto) {
         Visa visa = visaRepository.findById(visaId)
                 .orElseThrow(() -> new EntityNotFoundException("Visa not found: " + visaId));
 
@@ -670,20 +645,20 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional(readOnly = true)
-    public RentalCertificate getRental(Integer rentalId) {
+    public RentalCertificate getRental(Long rentalId) {
         return rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new EntityNotFoundException("Rental not found: " + rentalId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<RentalCertificate> getRentalsByVisa(Integer visaId) {
+    public List<RentalCertificate> getRentalsByVisa(Long visaId) {
         return rentalRepository.findByVisaId(visaId);
     }
 
     @Override
     @Transactional
-    public RentalCertificate updateRental(Integer rentalId, RentalCertificateDto rentalDto) {
+    public RentalCertificate updateRental(Long rentalId, RentalCertificateDto rentalDto) {
         RentalCertificate rc = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new EntityNotFoundException("Rental not found: " + rentalId));
 
@@ -701,7 +676,7 @@ public class ImmigrationServiceImpl implements ImmigrationService {
 
     @Override
     @Transactional
-    public void deleteRental(Integer rentalId) {
+    public void deleteRental(Long rentalId) {
         rentalRepository.deleteById(rentalId);
     }
 

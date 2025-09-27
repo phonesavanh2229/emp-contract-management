@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class ProvinceDto {
-    private Integer id;
+    private Long id;
     private String provinceName;
     private String code;
 

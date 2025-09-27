@@ -1,11 +1,18 @@
 package com.contractEmployee.contractEmployee.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter; import lombok.Setter; import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp; import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate; import java.time.LocalDateTime; import java.util.ArrayList; import java.util.List;
+import java.time.LocalDate; import java.time.LocalDateTime; import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity @Table(name = "passport")
 @Getter @Setter @NoArgsConstructor
@@ -13,7 +20,7 @@ public class Passport {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "passport_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
@@ -53,8 +60,10 @@ public class Passport {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "passport", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<Visa> visas = new ArrayList<>();
+    @Fetch(FetchMode.SUBSELECT)
+    @JsonManagedReference(value = "passport-visas")
+    private Set<Visa> visas = new HashSet<>();
+
     @Column(name = "is_current")
     private Boolean isCurrent;
 

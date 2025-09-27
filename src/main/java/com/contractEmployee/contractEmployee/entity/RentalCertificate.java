@@ -1,9 +1,13 @@
 package com.contractEmployee.contractEmployee.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter; import lombok.Setter; import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp; import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate; import java.time.LocalDateTime;
 
@@ -17,9 +21,10 @@ public class RentalCertificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rental_id")
-    private Integer id;
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "visa_id", nullable = false)
+    @JsonBackReference(value = "visa-rentals")
     private Visa visa;
 
 

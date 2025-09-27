@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface PassportRepository extends JpaRepository<Passport, Integer> {
+public interface PassportRepository extends JpaRepository<Passport, Long> {
 @Query("SELECT p FROM Passport p WHERE p.status = 'ACTIVE'")
     List<Passport> findActivePassports();
     List<Passport> findByExpiryDateBetweenAndStatus(LocalDate start, LocalDate end, String status);
@@ -19,10 +19,10 @@ public interface PassportRepository extends JpaRepository<Passport, Integer> {
 @Query("SELECT p FROM Passport p " +
         "WHERE p.employee.id = :employeeId AND p.isCurrent = true " +
         "ORDER BY p.id DESC")
-Optional<Passport> findCurrentPassportByEmployeeId(@Param("employeeId") Integer employeeId);
-    List<Passport> findAllByEmployeeIdAndIsCurrentTrue(Integer employeeId);
+Optional<Passport> findCurrentPassportByEmployeeId(@Param("employeeId") Long employeeId);
+    List<Passport> findAllByEmployeeIdAndIsCurrentTrue(Long employeeId);
 
-    List<Passport> findByEmployeeId(Integer employeeId);
+    List<Passport> findByEmployeeId(Long employeeId);
 
     List<Passport> findByExpiryDateBeforeAndStatus(LocalDate today, String status);
 

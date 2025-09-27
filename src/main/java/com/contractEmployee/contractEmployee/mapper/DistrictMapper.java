@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 public class DistrictMapper {
 
-    // ✅ ป้องกัน loop โดยไม่ map Branches
     public static DistrictDto toDto(District entity) {
         if (entity == null) return null;
 
@@ -16,7 +15,6 @@ public class DistrictMapper {
         dto.setDistrictName(entity.getDistrictName());
         dto.setCode(entity.getCode());
 
-        // province → shallow mapping
         if (entity.getProvince() != null) {
             dto.setProvince(ProvinceMapper.toDto(entity.getProvince()));
         }

@@ -10,18 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface VisaRepository extends JpaRepository<Visa, Integer> {
-    List<Visa> findByPassportId(Integer passportId);
-    List<Visa> findByPassportIdAndIsCurrentTrue(Integer passportId);
-    List<Visa>  findByExpiryDateLessThanEqual(LocalDate today);
+public interface VisaRepository extends JpaRepository<Visa, Long> {
+    List<Visa> findByPassportId(Long passportId);
+    List<Visa> findByPassportIdAndIsCurrentTrue(Long passportId);
     List<Visa> findByExpiryDateLessThanEqualAndStatus(LocalDate date, String status);
 
-    //    List<Visa>  findByExpiryDateBeforeAndStatusNot(LocalDate today, LocalDate todays,String status);
-    // ✅ Active visas
-//    List<Visa> findByExpiryDateBeforeAndStatusNot(LocalDate today, String status);
-//    Optional<Visa> findFirstByPassportIdAndIsCurrentTrue(Integer passportId);
-//    List<Visa> findAllByPassportIdAndIsCurrentTrue(Integer passportId);
-    // ✅ Active visas
     @Query("SELECT COUNT(v) FROM Visa v WHERE v.expiryDate >= :today AND v.status = 'ACTIVE'")
     long countActive(@Param("today") LocalDate today);
     // Find expired visas that are still ACTIVE

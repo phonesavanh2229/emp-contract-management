@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class BranchDto {
-    private Integer id;
+    private Long id;
     private String name;
     private Boolean mainBranch;
 
-    private DistrictDto district; // district ที่ branch นี้อยู่
+    private DistrictDto district;
 }

@@ -1,21 +1,28 @@
 package com.contractEmployee.contractEmployee.dto.request;
 
+import com.contractEmployee.contractEmployee.entity.Gender;
 import lombok.AllArgsConstructor;
+
+
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class EmployeeDto {
-    private Integer id;
+    private Long id;
     private String staffCode;
     private String firstName;
     private String lastName;
-    private String gender;
+    private Gender  gender;  //fix
     private LocalDate birthday;
     private String phone;
     private String phoneTwo;
@@ -23,16 +30,18 @@ public class EmployeeDto {
     private LocalDate startWorking;
     private String status;
     private String province;
-    private String district;
+    private String  district;
     private String village;
 
-    private BranchDto branch;
+    private String branch;
     private DepartmentBranchDto departmentBranch;
 
     // immigration fields
-    private List<PassportDto> passports;
+    @Builder.Default
+    private List<PassportDto> passports = new ArrayList<>();
 
 //    private PassportDto passport;
-    private List<VisaDto> visas;
+//    @Builder.Default
+//    private List<VisaDto> visas = new ArrayList<>();
 
 }

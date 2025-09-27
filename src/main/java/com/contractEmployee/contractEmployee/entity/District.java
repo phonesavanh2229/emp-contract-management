@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
-@Table(name = "district")
+@Table(name = "districts")
 @Data
 public class District {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String districtName;
     private  String code;

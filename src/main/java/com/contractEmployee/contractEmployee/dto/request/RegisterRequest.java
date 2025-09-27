@@ -14,7 +14,7 @@ import lombok.*;
 public class RegisterRequest {
 
     @NotNull(message = "Employee ID is required")
-    private Integer employeeId;
+    private Long employeeId;
 
     @NotBlank(message = "Username is required")
     @Pattern(regexp = "^[A-Za-z0-9]+$", message = "Username must contain only English letters and numbers")

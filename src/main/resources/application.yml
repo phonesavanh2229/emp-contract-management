@@ -1,20 +1,12 @@
+server:
+  port: 8083
+
 spring:
-  profiles:
-    active: dev
-  jackson:
-    default-property-inclusion: non_null
   datasource:
-    url: jdbc:mariadb://localhost:3307/contract_db
+    url: jdbc:mariadb://localhost:3306/contract_db
     username: root
     password: root
     driver-class-name: org.mariadb.jdbc.Driver
-    hikari:
-      pool-name: ContractHikariPool
-      minimum-idle: 5
-      maximum-pool-size: 10
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-timeout: 30000
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,17 +14,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-        temp.use_jdbc_metadata_defaults: false
-        jdbc.lob.non_contextual_creation: true
 
 security:
   jwt:
-    # Use strong 256-bit secrets (>=32 chars). Do NOT commit real secrets.
-    access-secret: "change-this-access-secret-at-least-32-chars-long-123456"
-    refresh-secret: "change-this-refresh-secret-at-least-32-chars-long-abcdef"
-    access-ttl-ms: 3600000       # 1 hour
-    refresh-ttl-ms: 604800000    # 7 days
-
-logging:
-  level:
-    com.zaxxer.hikari: DEBUG
+    access-secret: change-this-access-secret-at-least-32-chars-long-123456
+    refresh-secret: change-this-refresh-secret-at-least-32-chars-long-abcdef
+    access-ttl-ms: 3600000
+    refresh-ttl-ms: 604800000

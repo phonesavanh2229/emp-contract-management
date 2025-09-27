@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PassportDto {
-    private Integer id;
+    private Long id;
     private String passportNumber;
     private String passportType;
     private String country;     // map -> country_code

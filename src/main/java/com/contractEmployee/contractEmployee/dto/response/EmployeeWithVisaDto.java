@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeWithVisaDto {
-    private Integer id;
+    private Long id;
     private String staffCode;
     private String firstName;
     private String lastName;

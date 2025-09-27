@@ -1,11 +1,13 @@
 package com.contractEmployee.contractEmployee.dto.response;
 
+import com.contractEmployee.contractEmployee.dto.PagedResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,5 +27,20 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(int status, String msg, String path) {
         return new ApiResponse<>(LocalDateTime.now(), status, false, msg, path, null);
+    }
+
+    // ✅ Special wrapper สำหรับ page result
+    public static <T> ApiResponse<PagedResponse<T>> paged(
+            String msg,
+            List<T> items,
+            int pageNumber,
+            int pageSize,
+            long totalElements,
+            int totalPages,
+            boolean last,
+            String path
+    ) {
+        PagedResponse<T> paged = new PagedResponse<>(items, pageNumber, pageSize, totalElements, totalPages, last);
+        return new ApiResponse<>(LocalDateTime.now(), 200, true, msg, path, paged);
     }
 }

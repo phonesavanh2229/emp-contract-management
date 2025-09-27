@@ -5,7 +5,7 @@ import java.util.List;
 
 @Data
 public class DistrictDto {
-    private Integer id;
+    private Long id;
     private String districtName;
     private String code;
 

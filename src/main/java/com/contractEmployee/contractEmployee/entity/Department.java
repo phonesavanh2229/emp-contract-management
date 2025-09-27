@@ -16,7 +16,7 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")   // 👈 ต้องเป็น id ไม่ใช่ department_id
-    private Integer id;
+    private Long id;
 
     @Column(name = "department_name", nullable = false)
     private String departmentName;
